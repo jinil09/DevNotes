@@ -18,11 +18,12 @@ class CommitController extends Controller
             'branch_name' => 'required',
             'commit_message' => 'required',
             'file_path' => 'required',
-            'date' => 'required|date',
+            'date' => 'nullable|date',
         ]);
 
         $filePathsArray = explode("\n", trim($request->file_path));
         $userId = auth()->id(); 
+        $currentDate = now()->format('Y-m-d');
 
         if ($request->has('id')) {
             // Update existing record
@@ -31,7 +32,7 @@ class CommitController extends Controller
                 'branch_name' => $request->branch_name,
                 'commit_message' => $request->commit_message,
                 'file_path' => json_encode($filePathsArray, JSON_UNESCAPED_SLASHES),
-                'date' => $request->date,
+                'date' => $request->date ?: $currentDate,
                 'user_id' => $userId,
             ]);
 
@@ -42,7 +43,7 @@ class CommitController extends Controller
                 'branch_name' => $request->branch_name,
                 'commit_message' => $request->commit_message,
                 'file_path' => json_encode($filePathsArray, JSON_UNESCAPED_SLASHES),
-                'date' => $request->date,
+                'date' => $request->date ?: $currentDate,
                 'user_id' => $userId,
             ]);
 
@@ -52,10 +53,11 @@ class CommitController extends Controller
 
     public function index()
     {
-        $commits = Commit::where('user_id', auth()->id())->get();
+        $commits = Commit::where('user_id', auth()->id())
+                        ->orderBy('created_at', 'desc')
+                        ->get();
         return view('commits.index', compact('commits'));
     }
-
 
     public function home()
     {

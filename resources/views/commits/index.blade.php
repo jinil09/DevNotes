@@ -1,23 +1,32 @@
 @extends('layout')
 
-@section('title', 'Home')
+@section('title', 'Commit-List')
 
 @section('content')
     <div class="container mx-auto px-4 py-6">
         <h1 class="text-3xl font-extrabold mb-6 text-gray-800">All Commits</h1>
 
-        <div class="mb-4 flex items-center">
-            <input type="text" id="search" placeholder="Search by branch name..." 
-                class="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-blue-500 focus:ring-opacity-50" />
-            <button id="exportCsv" class="ml-2 bg-blue-500 text-white p-2 rounded-md shadow-sm hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-500 focus:ring-opacity-50">
-                <i class="fas fa-file-csv"></i>
-            </button>
-        </div>
+        @if($commits->count() > 0)
+            <div class="mb-4 flex items-center">
+                <input type="text" id="search" placeholder="Search by branch name..." 
+                    class="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-blue-500 focus:ring-opacity-50" />
+                <button id="exportCsv" class="ml-2 bg-blue-500 text-white p-2 rounded-md shadow-sm hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+                    <i class="fas fa-file-csv"></i>
+                </button>
+            </div>
+        @endif
 
         <p id="noResultsMessage" class="text-lg text-gray-600 hidden">No Commits Found</p>
 
         @if($commits->isEmpty())
-            <p class="text-lg text-gray-600">No commits available.</p>
+            <div class="flex items-center justify-center h-full" style="width:auto; height:70vh">
+                <p class="text-lg text-gray-600">
+                    No commits Data available. 
+                    <a href="/add-commit" class="text-blue-500 underline hover:text-blue-600">
+                        add commit
+                    </a>
+                </p>
+            </div>
         @else
             <div id="commit-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 @foreach($commits as $commit)
@@ -173,21 +182,25 @@
                 };
             });
 
-            const csvRows = [
-                ['Branch Name', 'Commit Message', 'File Paths'],
-                ...commits.map(c => [
-                    c.branchName,
-                    c.commitMessage,
-                    c.filePaths.replace(/\n/g, ' ')
-                ])
-            ];
+            // const csvRows = [
+            //     ['Branch Name', 'Commit Message', 'File Paths'],
+            //     ...commits.map(c => [
+            //         c.branchName,
+            //         c.commitMessage,
+            //         c.filePaths.replace(/\n/g, ' ')
+            //     ])
+            // ];
 
-            const csvContent = csvRows.map(row => row.join(',')).join('\n');
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const textContent = commits.map(c => 
+                `[${c.branchName}]\n\n${c.commitMessage}\n\n${c.filePaths}\n=======================================================\n\n`
+            ).join('');
+
+            // const csvContent = csvRows.map(row => row.join(',')).join('\n');
+            const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8;' });
 
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
-            link.download = 'commits.csv';
+            link.download = 'commits.txt';
             link.click();
         });
     });

@@ -28,7 +28,7 @@ Route::middleware([
     'verified',
 ])->group(function () {
     Route::get('/dashboard', function () {
-        return view('dashboard');
+        return redirect('/');
     })->name('dashboard');
     Route::get('/commits', [CommitController::class, 'index'])->name('commits.index');
     Route::get('/add-commit', [CommitController::class, 'create'])->name('commits.create');

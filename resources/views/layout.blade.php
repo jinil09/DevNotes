@@ -11,7 +11,7 @@
 
     @include('partials.header')
 
-    <div class="container mx-auto mt-6 px-4 py-6">
+    <div class="container min-h-[70vh]">
         @yield('content')
     </div>
 
